@@ -9,16 +9,21 @@ https://desktop.aneety.com/
 ## Arquitetura vigente
 
 - Cloudflare Pages Free para assets estáticos gerados por Vite em `dist`.
-- Supabase Auth para login de usuários reais.
+- Autenticação de usuários reais modelada no banco de dados e exposta pela API Lia.
 - API real Cloudflare Workers Free + Hono via `VITE_API_URL=https://api.aneety.com`.
 - Banco real Supabase/Postgres no projeto `mqxwdyhtsvzzehmdfhtj`, com RLS no backend.
 - Contratos e tokens compartilháveis por `lia-core` em <https://core.aneety.com/>.
 - Custo zero: sem Pages Functions pagas, Workers Paid, Containers, Render, VPS ou add-ons pagos.
 - Proibido usar mock, NestJS, Mongo/Mongoose ou GridFS como arquitetura vigente.
 
+
+## Limites semânticos de serviços externos
+
+O desktop operacional não deve acoplar regra de negócio a marca de fornecedor. Hospedagem, API, banco, storage, pagamento, logs e CI são aceitos pela função semântica: domínio `aneety.com`, API HTTP, Postgres/migrations, auth modelada no banco, secrets fora do frontend, custo zero e adapter substituível.
+
 ## Fluxos implementados
 
-- Login Supabase Auth com chave pública de frontend (`VITE_SUPABASE_PUBLISHABLE_KEY`).
+- Login via API Lia com sessão/token próprio; frontend não deve exigir chave pública de provedor externo para autenticar.
 - Listagem de pedidos reais via `GET https://api.aneety.com/api/orders`.
 - Seleção de pedido e visualização operacional desktop.
 - Atualização de status via `PATCH /api/orders/:id/status`.
@@ -29,8 +34,6 @@ https://desktop.aneety.com/
 
 ```bash
 VITE_API_URL=https://api.aneety.com
-VITE_SUPABASE_URL=https://mqxwdyhtsvzzehmdfhtj.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-ou-anon-public>
 ```
 
 Nunca usar `SUPABASE_SERVICE_ROLE_KEY` no frontend. A service role pertence somente aos secrets do Worker `lia-backend`.
@@ -52,14 +55,12 @@ O E2E roda somente contra URLs publicadas em `aneety.com` quando `LIA_E2E_ENABLE
 LIA_E2E_ENABLED=1 \
 LIA_E2E_DESKTOP_URL=https://desktop.aneety.com \
 LIA_E2E_API_URL=https://api.aneety.com \
-VITE_SUPABASE_URL=https://mqxwdyhtsvzzehmdfhtj.supabase.co \
-VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-ou-anon-public> \
 LIA_E2E_ADMIN_EMAIL=<usuario-teste> \
 LIA_E2E_ADMIN_PASSWORD=<senha-teste> \
 pnpm test:e2e
 ```
 
-Cobertura atual: login Supabase, criação de pedido via API publicada, abertura no desktop, conclusão de checkpoint de molde e upload/listagem de anexo real.
+Cobertura alvo: login via modelo de banco, criação de pedido via API publicada, abertura no desktop, conclusão de checkpoint de molde e upload/listagem de anexo real.
 
 ## Deploy Cloudflare Pages Free
 
