@@ -58,7 +58,7 @@ runE2E('Desktop opera pedido, checkpoint e anexo na API/Postgres real', async ({
   });
   await page.getByRole('button', { name: 'Enviar anexo' }).click();
   await expect(page.getByText(`Anexo ${attachmentFilename} enviado para Supabase Storage via Worker.`)).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText(attachmentFilename)).toBeVisible();
+  await expect(page.getByText(attachmentFilename, { exact: true })).toBeVisible();
 
   const orders = await jsonApiFetch<OrderResponse[]>('/api/orders', { token });
   const syncedOrder = orders.find((order) => order.id === created.id || order.customerName === customerName);
