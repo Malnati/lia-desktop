@@ -40,7 +40,7 @@ runE2E('Desktop opera pedido, checkpoint e anexo na API/Postgres real', async ({
   await page.getByLabel('Senha').fill(process.env.LIA_E2E_ADMIN_PASSWORD!);
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByText('Sessão ativa', { exact: true })).toBeVisible();
-  await expect(page.getByText(customerName)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('table').getByText(customerName, { exact: true })).toBeVisible({ timeout: 30_000 });
 
   await page.getByRole('button', { name: `Abrir ${customerName}` }).click();
   await page.getByRole('tab', { name: 'Checkpoints' }).click();
